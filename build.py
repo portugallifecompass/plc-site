@@ -143,6 +143,8 @@ def main():
     DIST.mkdir()
     shutil.copytree(ROOT / "static" / "css", DIST / "css")
     shutil.copytree(ROOT / "static" / "img", DIST / "img")
+    if (ROOT / "static" / "downloads").exists():
+        shutil.copytree(ROOT / "static" / "downloads", DIST / "downloads")
     paths = [build_index(), build_guides()] + build_content_pages()
     build_extras(paths)
     print(f"Built {len(paths)} pages → {DIST}")
