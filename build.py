@@ -30,10 +30,13 @@ def ep_card(ep):
     live = ep["status"] == "published"
     badge = ('<span class="ep-badge live">Published</span>' if live
              else f'<span class="ep-badge">Premieres {ep["date_label"]}</span>')
+    guide_link = (f'<a class="ep-link" href="/guides/{ep["slug"]}/">Read the guide →</a>'
+                  if ep.get("guide") else "")
     return f'''<div class="ep-card">
       <div class="ep-meta"><span class="ep-num">{ep["label"].upper()}</span>{badge}</div>
       <p class="ep-title">{ep["title"]}</p>
-      <a class="ep-link" href="{ep["url"]}" rel="noopener">Watch on YouTube →</a>
+      {guide_link}
+      <a class="ep-link ep-link-sub" href="{ep["url"]}" rel="noopener">Watch on YouTube →</a>
     </div>'''
 
 
@@ -81,19 +84,30 @@ def build_index():
                   "/", content)
 
 
-def build_guides():
-    items = "\n".join(f'''<div class="ep-card">
+def guide_card(e):
+    if e.get("guide"):
+        return f'''<div class="ep-card">
+      <div class="ep-meta"><span class="ep-num">{e["label"].upper()}</span><span class="ep-badge live">Guide available</span></div>
+      <p class="ep-title">{e["guide_title"]}</p>
+      <a class="ep-link" href="/guides/{e["slug"]}/">Read the guide →</a>
+      <a class="ep-link ep-link-sub" href="{e["url"]}" rel="noopener">Watch the episode →</a>
+    </div>'''
+    return f'''<div class="ep-card">
       <div class="ep-meta"><span class="ep-num">{e["label"].upper()}</span><span class="ep-badge">Guide coming soon</span></div>
       <p class="ep-title">{e["title"]}</p>
       <a class="ep-link" href="{e["url"]}" rel="noopener">Watch the episode →</a>
-    </div>''' for e in EPISODES)
+    </div>'''
+
+
+def build_guides():
+    items = "\n".join(guide_card(e) for e in EPISODES)
     content = f'''
 <div class="page-head"><div class="container">
   <h1>Guides</h1>
   <p class="rules-chip">RULES AS OF JULY 2026</p>
 </div></div>
 <section class="section"><div class="container">
-  <p class="section-sub">Written, source-verified guides for every episode are being published here through August–September 2026. Until each guide lands, the episode itself is the best place to start.</p>
+  <p class="section-sub">Written, source-verified guides for every episode. Every legal statement below is checked against official Portuguese sources — the remaining guides are being published through August–September 2026.</p>
   <div class="ep-grid">{items}</div>
 </div></section>'''
     return render("Guides — Portugal Life Compass",
@@ -103,7 +117,7 @@ def build_guides():
 
 def build_content_pages():
     paths = []
-    for f in sorted((ROOT / "content").glob("*.html")):
+    for f in sorted((ROOT / "content").glob("**/*.html")):
         raw = f.read_text(encoding="utf-8")
         m = re.match(r"<!--(.*?)-->", raw, re.S)
         meta = dict(re.findall(r"^(\w+):\s*(.+)$", m.group(1).strip(), re.M))

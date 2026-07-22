@@ -8,7 +8,9 @@
     "date": "2026-07-17",
     "date_label": "17 July 2026",
     "status": "published",
-    "slug": "portugal-tax-mistakes"
+    "slug": "portugal-tax-mistakes",
+    "guide": true,
+    "guide_title": "Portugal Tax Mistakes: 7 Errors That Cost Expats Real Money"
   },
   {
     "num": 2,
@@ -19,7 +21,9 @@
     "date": "2026-07-24",
     "date_label": "24 July 2026",
     "status": "scheduled",
-    "slug": "ifici-portugal-20-percent-tax"
+    "slug": "ifici-portugal-20-percent-tax",
+    "guide": true,
+    "guide_title": "The IFICI Explained: Portugal's 20% Tax Regime, Line by Line"
   },
   {
     "num": 3,
@@ -30,7 +34,9 @@
     "date": "2026-07-31",
     "date_label": "31 July 2026",
     "status": "scheduled",
-    "slug": "d7-visa-income-requirements"
+    "slug": "d7-visa-income-requirements",
+    "guide": true,
+    "guide_title": "Portugal D7 Visa Income Requirements in 2026: The Real Numbers"
   },
   {
     "num": 4,
@@ -41,7 +47,9 @@
     "date": "2026-08-07",
     "date_label": "7 August 2026",
     "status": "scheduled",
-    "slug": "portugal-foreign-pension-tax"
+    "slug": "portugal-foreign-pension-tax",
+    "guide": true,
+    "guide_title": "How Portugal Taxes Foreign Pensions: The 2026 Reality"
   },
   {
     "num": 5,
@@ -52,7 +60,9 @@
     "date": "2026-08-14",
     "date_label": "14 August 2026",
     "status": "scheduled",
-    "slug": "portugal-double-taxation-treaties"
+    "slug": "portugal-double-taxation-treaties",
+    "guide": true,
+    "guide_title": "Portugal's Double-Taxation Treaties: How Foreign Income Is Really Taxed"
   },
   {
     "num": 6,
@@ -63,7 +73,9 @@
     "date": "2026-08-21",
     "date_label": "21 August 2026",
     "status": "scheduled",
-    "slug": "nif-fiscal-representative-portugal"
+    "slug": "nif-fiscal-representative-portugal",
+    "guide": true,
+    "guide_title": "The NIF and the Fiscal Representative: What You Actually Need in 2026"
   },
   {
     "num": 7,
