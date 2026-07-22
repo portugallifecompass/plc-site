@@ -1,0 +1,113 @@
+/* Portugal Life Compass — brand palette from the video pipeline:
+   gold #c9a227 / #e7c65a on ink #0e1a2c / #070d18, paper #f7f8fa */
+:root{
+  --ink:#0e1a2c; --ink-2:#0a1424; --ink-3:#070d18;
+  --gold:#c9a227; --gold-l:#e7c65a;
+  --paper:#f7f8fa; --card:#ffffff; --line:#e3e7ee;
+  --txt:#243044; --muted:#5b6572;
+  --sans:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+html{scroll-behavior:smooth}
+body{font-family:var(--sans);color:var(--txt);background:var(--paper);line-height:1.65;font-size:17px}
+.container{max-width:1080px;margin:0 auto;padding:0 24px}
+a{color:var(--ink);text-decoration:none}
+img{max-width:100%;display:block}
+
+/* Header */
+.site-header{background:var(--ink-2);border-bottom:1px solid rgba(201,162,39,.25);position:sticky;top:0;z-index:50}
+.header-inner{display:flex;align-items:center;justify-content:space-between;height:64px}
+.brand{display:flex;align-items:center;gap:10px}
+.brand-logo{width:30px;height:30px}
+.brand-name{color:#f5f7fa;font-weight:700;letter-spacing:.14em;font-size:.82rem}
+.brand-name em{font-style:normal;color:var(--gold-l)}
+.site-nav{display:flex;align-items:center;gap:22px}
+.site-nav a{color:#c9d2df;font-size:.92rem;font-weight:600}
+.site-nav a:hover{color:var(--gold-l)}
+.nav-cta{background:var(--gold);color:var(--ink-3)!important;padding:7px 14px;border-radius:6px}
+.nav-cta:hover{background:var(--gold-l)}
+
+/* Hero */
+.hero{background:url("/img/armillary.svg") no-repeat right -70px center/540px,linear-gradient(180deg,#0a1424 0%,#0c1730 55%,#070d18 100%);color:#f5f7fa;padding:84px 0 72px;position:relative;overflow:hidden}
+.hero::after{content:"";position:absolute;inset:0;background:radial-gradient(ellipse at 50% 20%,rgba(201,162,39,.14),transparent 60%);pointer-events:none}
+.hero .container{position:relative;z-index:1}
+.hero-kicker{color:var(--gold-l);letter-spacing:.22em;font-size:.78rem;font-weight:700;margin-bottom:18px}
+.hero h1{font-size:clamp(1.9rem,4.4vw,3.1rem);line-height:1.15;font-weight:800;max-width:820px}
+.hero h1 .gold{color:var(--gold-l)}
+.hero-sub{margin-top:20px;max-width:640px;color:#aab4c2;font-size:1.08rem}
+.hero-ctas{margin-top:34px;display:flex;gap:14px;flex-wrap:wrap}
+.btn{display:inline-block;padding:13px 24px;border-radius:8px;font-weight:700;font-size:.98rem}
+.btn-gold{background:var(--gold);color:var(--ink-3)}
+.btn-gold:hover{background:var(--gold-l)}
+.btn-ghost{border:1px solid rgba(245,247,250,.35);color:#f5f7fa}
+.btn-ghost:hover{border-color:var(--gold-l);color:var(--gold-l)}
+.hero-chip{display:inline-block;margin-top:30px;border:1px solid rgba(201,162,39,.55);color:var(--gold-l);font-size:.72rem;letter-spacing:.18em;font-weight:700;padding:6px 12px;border-radius:999px}
+
+/* Sections */
+.section{padding:64px 0}
+.section-alt{background:var(--card);border-top:1px solid var(--line);border-bottom:1px solid var(--line)}
+.section-h{font-size:1.7rem;font-weight:800;color:var(--ink);margin-bottom:8px}
+.section-sub{color:var(--muted);margin-bottom:34px;max-width:640px}
+
+/* Episode grid */
+.ep-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:18px}
+.ep-card{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:22px;display:flex;flex-direction:column;gap:10px;transition:box-shadow .15s,transform .15s}
+.ep-card:hover{box-shadow:0 8px 24px rgba(14,26,44,.10);transform:translateY(-2px)}
+.ep-meta{display:flex;align-items:center;gap:10px;font-size:.78rem;color:var(--muted)}
+.ep-num{background:var(--ink);color:var(--gold-l);font-weight:700;padding:3px 9px;border-radius:5px;font-size:.72rem;letter-spacing:.06em}
+.ep-badge{border:1px solid var(--line);border-radius:999px;padding:2px 9px}
+.ep-badge.live{color:#1a7f37;border-color:#b5dfc2}
+.ep-title{font-size:1.06rem;font-weight:700;color:var(--ink);line-height:1.35}
+.ep-link{margin-top:auto;color:var(--gold);font-weight:700;font-size:.9rem}
+.ep-link:hover{color:var(--ink)}
+
+/* Method */
+.method-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:18px}
+.method-card{border-left:3px solid var(--gold);background:var(--card);border-radius:0 10px 10px 0;padding:20px 22px}
+.method-card h3{font-size:1.02rem;color:var(--ink);margin-bottom:8px}
+.method-card p{font-size:.95rem;color:var(--muted)}
+
+/* CTA band */
+.cta-band{background:var(--ink-2);color:#f5f7fa;border-radius:16px;padding:44px 40px;display:flex;align-items:center;justify-content:space-between;gap:26px;flex-wrap:wrap;position:relative;overflow:hidden}
+.cta-band::after{content:"";position:absolute;inset:0;background:radial-gradient(ellipse at 85% 30%,rgba(201,162,39,.18),transparent 55%);pointer-events:none}
+.cta-band>*{position:relative;z-index:1}
+.cta-band h2{font-size:1.5rem;margin-bottom:6px}
+.cta-band p{color:#aab4c2;max-width:520px}
+
+/* Prose pages */
+.page-head{background:url("/img/armillary.svg") no-repeat right -50px center/300px,var(--ink-2);color:#f5f7fa;padding:56px 0 44px}
+.page-head h1{font-size:clamp(1.7rem,3.6vw,2.5rem);font-weight:800}
+.page-head .rules-chip{margin-top:16px}
+.prose{max-width:760px;padding:48px 24px 72px;margin:0 auto}
+.prose h2{color:var(--ink);font-size:1.35rem;margin:38px 0 12px}
+.prose h3{color:var(--ink);font-size:1.1rem;margin:26px 0 10px}
+.prose p{margin:14px 0}
+.prose ul,.prose ol{margin:14px 0 14px 26px}
+.prose li{margin:7px 0}
+.prose a{color:var(--gold);font-weight:600}
+.prose a:hover{color:var(--ink)}
+.prose .note{background:#fdf6e3;border:1px solid #ecd9a0;border-radius:10px;padding:16px 18px;font-size:.95rem}
+.prose .disclaimer-box{background:var(--card);border:1px solid var(--line);border-left:3px solid var(--gold);border-radius:0 10px 10px 0;padding:16px 18px;font-size:.95rem;color:var(--muted)}
+
+/* Footer */
+.site-footer{background:var(--ink-3);color:#aab4c2;padding:52px 0 32px;font-size:.9rem}
+.footer-grid{display:grid;grid-template-columns:2fr 1fr 1fr;gap:30px;margin-bottom:30px}
+.footer-brand{color:#f5f7fa;font-weight:700;letter-spacing:.14em;font-size:.85rem}
+.footer-brand em{font-style:normal;color:var(--gold-l)}
+.footer-tag{margin-top:8px;max-width:340px}
+.footer-h{color:#f5f7fa;font-weight:700;margin-bottom:10px;font-size:.85rem;letter-spacing:.08em}
+.site-footer a{display:block;color:#aab4c2;margin:6px 0}
+.site-footer a:hover{color:var(--gold-l)}
+.rules-chip{display:inline-block;margin-top:14px;border:1px solid rgba(201,162,39,.55);color:var(--gold-l);font-size:.68rem;letter-spacing:.18em;font-weight:700;padding:5px 11px;border-radius:999px}
+.footer-disclaimer{border-top:1px solid rgba(245,247,250,.12);padding-top:22px;font-size:.8rem;color:#7e8898;max-width:860px}
+.footer-copy{margin-top:14px;font-size:.8rem;color:#7e8898}
+
+@media (max-width:720px){
+  .hero{background-size:0,auto}
+  .page-head{background-size:0,auto}
+  .footer-grid{grid-template-columns:1fr}
+  .site-nav{gap:14px}
+  .site-nav a:not(.nav-cta){font-size:.85rem}
+  .brand-name{display:none}
+  .cta-band{padding:32px 24px}
+}

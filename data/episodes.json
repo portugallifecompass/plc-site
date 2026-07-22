@@ -1,0 +1,123 @@
+[
+  {
+    "num": 1,
+    "label": "Pilot",
+    "title": "Seven Common Portuguese Tax Mistakes — and How to Avoid Them",
+    "topic": "Tax mistakes",
+    "url": "https://youtu.be/sKj7SaRgl6o",
+    "date": "2026-07-17",
+    "date_label": "17 July 2026",
+    "status": "published",
+    "slug": "portugal-tax-mistakes"
+  },
+  {
+    "num": 2,
+    "label": "Ep. 2",
+    "title": "What the IFICI Really Requires, Line by Line",
+    "topic": "IFICI — the 20% tax regime",
+    "url": "https://youtu.be/KKM4gXZxcA8",
+    "date": "2026-07-24",
+    "date_label": "24 July 2026",
+    "status": "scheduled",
+    "slug": "ifici-portugal-20-percent-tax"
+  },
+  {
+    "num": 3,
+    "label": "Ep. 3",
+    "title": "Portugal's D7 Visa: The Real Income Requirements (2026)",
+    "topic": "D7 visa",
+    "url": "https://youtu.be/k6R8zjpxvS0",
+    "date": "2026-07-31",
+    "date_label": "31 July 2026",
+    "status": "scheduled",
+    "slug": "d7-visa-income-requirements"
+  },
+  {
+    "num": 4,
+    "label": "Ep. 4",
+    "title": "How Portugal Really Taxes Foreign Pensions",
+    "topic": "Foreign pensions",
+    "url": "https://youtu.be/h5gzEAK24zk",
+    "date": "2026-08-07",
+    "date_label": "7 August 2026",
+    "status": "scheduled",
+    "slug": "portugal-foreign-pension-tax"
+  },
+  {
+    "num": 5,
+    "label": "Ep. 5",
+    "title": "Double-Taxation Treaties: Who Taxes What?",
+    "topic": "Double-taxation treaties",
+    "url": "https://youtu.be/7cT1GDOKzuY",
+    "date": "2026-08-14",
+    "date_label": "14 August 2026",
+    "status": "scheduled",
+    "slug": "portugal-double-taxation-treaties"
+  },
+  {
+    "num": 6,
+    "label": "Ep. 6",
+    "title": "The NIF and Fiscal Representation, Explained",
+    "topic": "NIF & fiscal representation",
+    "url": "https://youtu.be/yJpU8So46gY",
+    "date": "2026-08-21",
+    "date_label": "21 August 2026",
+    "status": "scheduled",
+    "slug": "nif-fiscal-representative-portugal"
+  },
+  {
+    "num": 7,
+    "label": "Ep. 7",
+    "title": "The Taxes You Pay When Buying Property (IMT, Stamp Duty, IMI)",
+    "topic": "Property purchase taxes",
+    "url": "https://youtu.be/pedMKk4yZKQ",
+    "date": "2026-08-28",
+    "date_label": "28 August 2026",
+    "status": "scheduled",
+    "slug": "portugal-property-purchase-taxes"
+  },
+  {
+    "num": 8,
+    "label": "Ep. 8",
+    "title": "Selling Property in Portugal: The Capital-Gains Rules",
+    "topic": "Property capital gains",
+    "url": "https://youtu.be/_M9W5eVisHc",
+    "date": "2026-09-04",
+    "date_label": "4 September 2026",
+    "status": "scheduled",
+    "slug": "portugal-property-capital-gains"
+  },
+  {
+    "num": 9,
+    "label": "Ep. 9",
+    "title": "Self-Employed in Portugal: Social Security, Explained",
+    "topic": "Self-employed Social Security",
+    "url": "https://youtu.be/oQnsQ0KlPLY",
+    "date": "2026-09-11",
+    "date_label": "11 September 2026",
+    "status": "scheduled",
+    "slug": "portugal-self-employed-social-security"
+  },
+  {
+    "num": 10,
+    "label": "Ep. 10",
+    "title": "How Portugal Taxes Crypto: The 365-Day Rule",
+    "topic": "Crypto taxes",
+    "url": "https://youtu.be/HUGHWew3ByY",
+    "date": "2026-09-18",
+    "date_label": "18 September 2026",
+    "status": "scheduled",
+    "slug": "portugal-crypto-taxes"
+  },
+  {
+    "num": 11,
+    "label": "Ep. 11",
+    "title": "Golden Visa & Remote-Work Visas After Law 56/2023",
+    "topic": "Golden Visa & remote-work visas",
+    "url": "https://youtu.be/FVJ7DQZ7bLU",
+    "date": "2026-09-25",
+    "date_label": "25 September 2026",
+    "status": "scheduled",
+    "slug": "portugal-golden-visa-remote-work"
+  }
+]
