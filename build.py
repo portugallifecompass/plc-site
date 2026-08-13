@@ -51,12 +51,14 @@ REDIRECTS = """# _redirects — Cloudflare Pages
 # Linhas iniciadas por # sao comentarios.
 
 # ------------------------------------------------------------------
-# 1 · SONDA DE MECANISMO — nao e afiliado, nao envolve parceiros.
-#     Destino interno. Prova que o ficheiro esta no sitio certo e que
-#     o deploy o serve. REMOVER quando o teste 2 da fase A passar.
+# 1 · SONDA DE MECANISMO — REMOVIDA a 10/08/2026, cumprida a funcao.
+#     Medido em producao nesse dia, com curl.exe na maquina do dono:
+#       /go/test          -> 302 https://portugallifecompass.com/disclaimer/
+#       /go/test/         -> 302 https://portugallifecompass.com/disclaimer/
+#       /go/test?src=ep12 -> 302 .../disclaimer/?src=ep12  (QUERY STRING PASSA)
+#       /go/TEST          -> 200, sem redirecionamento (SENSIVEL A MAIUSCULAS)
+#     O mecanismo esta provado. Registo: PLC-1008-I1 (10/08/2026).
 # ------------------------------------------------------------------
-/go/test     /disclaimer/     302
-/go/test/    /disclaimer/     302
 
 # ------------------------------------------------------------------
 # 2 · VAGA 1 (25-31/08/2026) — SafetyWing, Genki
