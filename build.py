@@ -14,6 +14,78 @@ BASE = (ROOT / "templates" / "base.html").read_text(encoding="utf-8")
 EPISODES = json.loads((ROOT / "data" / "episodes.json").read_text(encoding="utf-8"))
 
 
+# --------------------------------------------------------------------------
+# _redirects — Cloudflare Pages
+# Origem da especificacao: claude/PLC-0708-A4_Afiliados_IMG_e_Redirects_2026-08-07.md
+# Correcao do mecanismo:   claude/PLC-1008-I1_... (10/08/2026)
+#
+# POR QUE VIVE AQUI, E NAO EM dist/ NEM EM static/:
+#   main() faz shutil.rmtree(DIST) a cada execucao -> um ficheiro colado a
+#   mao em dist/ desaparece no build seguinte.
+#   main() so copia static/css, static/img e static/downloads -> um ficheiro
+#   colado em static/ nunca chega a dist/.
+#   O _headers sobrevive porque e GERADO aqui. O _redirects passa a sobreviver
+#   pela mesma razao, e nao por outra.
+# --------------------------------------------------------------------------
+REDIRECTS = """# _redirects — Cloudflare Pages
+# Portugal Life Compass · portugallifecompass.com
+# GERADO POR build.py — nao editar em dist/. Editar aqui, em build.py.
+#
+# REGRA 1 — Nenhuma linha de parceiro sai de comentario sem um URL de
+#           rastreio REAL, emitido pela plataforma apos a aprovacao.
+#           Um /go/ que aponta para um destino inventado e pior do que
+#           um 404: parece funcionar.
+#
+# REGRA 2 — A linha de um parceiro e a sua divulgacao publicam-se no
+#           MESMO commit: /disclosure no ar e a seccao do /disclaimer
+#           corrigida, porque a pagina publicada declara hoje que o site
+#           nao tem links de afiliado.
+#
+# REGRA 3 — 302 sempre, nunca 301. Os URLs de rastreio mudam; um 301
+#           fica em cache no browser do visitante e nao se desfaz.
+#
+# REGRA 4 — Cada origem leva SEMPRE duas linhas: sem barra final e com
+#           barra final. O Cloudflare Pages nao as trata como iguais.
+#
+# Sintaxe: [origem] [destino] [codigo]
+# Linhas iniciadas por # sao comentarios.
+
+# ------------------------------------------------------------------
+# 1 · SONDA DE MECANISMO — nao e afiliado, nao envolve parceiros.
+#     Destino interno. Prova que o ficheiro esta no sitio certo e que
+#     o deploy o serve. REMOVER quando o teste 2 da fase A passar.
+# ------------------------------------------------------------------
+/go/test     /disclaimer/     302
+/go/test/    /disclaimer/     302
+
+# ------------------------------------------------------------------
+# 2 · VAGA 1 (25-31/08/2026) — SafetyWing, Genki
+# ------------------------------------------------------------------
+# /go/safetywing    COLAR_URL_RASTREIO_SAFETYWING    302
+# /go/safetywing/   COLAR_URL_RASTREIO_SAFETYWING    302
+# /go/genki         COLAR_URL_RASTREIO_GENKI         302
+# /go/genki/        COLAR_URL_RASTREIO_GENKI         302
+
+# ------------------------------------------------------------------
+# 3 · VAGA 5 (apos o guia de saude estar no ar) — IMG, Cigna
+#     ATENCAO IMG: qualquer peca publicada que nomeie a IMG carece de
+#     disclaimer e de aprovacao previa da IMG.
+# ------------------------------------------------------------------
+# /go/img           COLAR_URL_RASTREIO_IMG_IMPACT    302
+# /go/img/          COLAR_URL_RASTREIO_IMG_IMPACT    302
+# /go/cigna         COLAR_URL_RASTREIO_CIGNA_FLEX    302
+# /go/cigna/        COLAR_URL_RASTREIO_CIGNA_FLEX    302
+
+# ------------------------------------------------------------------
+# 4 · SLUGS RESERVADOS — shortlist v2, vagas 2 a 6. NAO criar agora.
+#     wise · revolut · e-residence · anchorless · practice-portuguese
+#     italki · preply · flatio · spotahome · nordvpn
+#     Variantes por colocacao, so quando a rede confirmar sub-ID:
+#     /go/<parceiro>-yt · -guide · -short · -mail
+# ------------------------------------------------------------------
+"""
+
+
 def render(title, description, path, content, head_extra=""):
     html = (BASE.replace("{{title}}", title)
                 .replace("{{description}}", description)
@@ -131,10 +203,11 @@ def build_extras(paths):
     (DIST / "sitemap.xml").write_text(
         f'<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n{urls}\n</urlset>\n',
         encoding="utf-8")
-    (DIST / "robots.txt").write_text(f"User-agent: *\nAllow: /\nSitemap: {SITE}/sitemap.xml\n", encoding="utf-8")
+    (DIST / "robots.txt").write_text(f"User-agent: *\nAllow: /\nDisallow: /go/\nSitemap: {SITE}/sitemap.xml\n", encoding="utf-8")
     (DIST / "_headers").write_text(
         "/*\n  X-Content-Type-Options: nosniff\n  X-Frame-Options: DENY\n  Referrer-Policy: strict-origin-when-cross-origin\n",
         encoding="utf-8")
+    (DIST / "_redirects").write_text(REDIRECTS, encoding="utf-8")
 
 
 def main():
