@@ -17,7 +17,7 @@ EPISODES = json.loads((ROOT / "data" / "episodes.json").read_text(encoding="utf-
 # --------------------------------------------------------------------------
 # _redirects — Cloudflare Pages
 # Origem da especificacao: claude/PLC-0708-A4_Afiliados_IMG_e_Redirects_2026-08-07.md
-# Correcao do mecanismo:   claude/PLC-1008-I1_... (10/08/2026)
+# Correcao do mecanismo:   claude/PLC-1008-I1_... (13/08/2026)
 #
 # POR QUE VIVE AQUI, E NAO EM dist/ NEM EM static/:
 #   main() faz shutil.rmtree(DIST) a cada execucao -> um ficheiro colado a
@@ -51,13 +51,13 @@ REDIRECTS = """# _redirects — Cloudflare Pages
 # Linhas iniciadas por # sao comentarios.
 
 # ------------------------------------------------------------------
-# 1 · SONDA DE MECANISMO — REMOVIDA a 10/08/2026, cumprida a funcao.
+# 1 · SONDA DE MECANISMO — REMOVIDA a 13/08/2026, cumprida a funcao.
 #     Medido em producao nesse dia, com curl.exe na maquina do dono:
 #       /go/test          -> 302 https://portugallifecompass.com/disclaimer/
 #       /go/test/         -> 302 https://portugallifecompass.com/disclaimer/
 #       /go/test?src=ep12 -> 302 .../disclaimer/?src=ep12  (QUERY STRING PASSA)
 #       /go/TEST          -> 200, sem redirecionamento (SENSIVEL A MAIUSCULAS)
-#     O mecanismo esta provado. Registo: PLC-1008-I1 (10/08/2026).
+#     O mecanismo esta provado. Registo: PLC-1008-I1 (13/08/2026).
 # ------------------------------------------------------------------
 
 # ------------------------------------------------------------------
