@@ -4,6 +4,7 @@ No external dependencies. Usage: python3 build.py  →  output in ./dist
 """
 import html as _html
 import json, re, shutil
+from datetime import date as _date
 from pathlib import Path
 
 ROOT = Path(__file__).parent
@@ -11,6 +12,7 @@ DIST = ROOT / "dist"
 SITE = "https://portugallifecompass.com"
 YT_CHANNEL = "https://youtube.com/@portugallifecompass"
 OG_IMAGE = "/img/og-default.png"   # 1200x630, gerado a 27/08/2026
+BUILD_DATE = _date.today()
 
 BASE = (ROOT / "templates" / "base.html").read_text(encoding="utf-8")
 EPISODES = json.loads((ROOT / "data" / "episodes.json").read_text(encoding="utf-8"))
@@ -112,8 +114,30 @@ def render(title, description, path, content, head_extra=""):
     return path
 
 
+def is_live(ep):
+    """CORRECCAO 27/08/2026 - o estado passa a ser DERIVADO da data de estreia.
+
+    Antes vinha do campo "status" de data/episodes.json, escrito a mao. Ficou
+    congelado em Julho: o Ep3 (31/07), o Ep4 (07/08), o Ep5 (14/08) e o Ep6
+    (21/08) estavam ha semanas no ar e a pagina inicial continuava a anunciar
+    "Premieres". Um campo que so muda quando alguem se lembra de o mudar nao e
+    um estado - e uma promessa de manutencao que ninguem cumpre.
+
+    Estritamente ANTERIOR ao dia do build: no proprio dia da estreia o cartao
+    continua a dizer "Premieres <hoje>", que e verdade ate as 17:00. O build
+    que se corre nesse dia (ja inscrito no cronograma, a par da reversao da
+    ligacao do guia) faz o cartao passar a Published.
+
+    O campo "status" fica no JSON e serve so de recurso se a data nao ler.
+    """
+    try:
+        return _date.fromisoformat(ep["date"]) < BUILD_DATE
+    except Exception:
+        return ep.get("status") == "published"
+
+
 def ep_card(ep):
-    live = ep["status"] == "published"
+    live = is_live(ep)
     badge = ('<span class="ep-badge live">Published</span>' if live
              else f'<span class="ep-badge">Premieres {ep["date_label"]}</span>')
     guide_link = (f'<a class="ep-link" href="/guides/{ep["slug"]}/">Read the guide →</a>'
@@ -122,7 +146,7 @@ def ep_card(ep):
       <div class="ep-meta"><span class="ep-num">{ep["label"].upper()}</span>{badge}</div>
       <p class="ep-title">{ep["title"]}</p>
       {guide_link}
-      <a class="ep-link ep-link-sub" href="{ep["url"]}" rel="noopener">Watch on YouTube →</a>
+      <a class="ep-link ep-link-sub" href="{ep["url"] if live else YT_CHANNEL}" rel="noopener">{"Watch on YouTube →" if live else "Go to the channel →"}</a>
     </div>'''
 
 
@@ -171,17 +195,24 @@ def build_index():
 
 
 def guide_card(e):
+    # 27/08/2026 - a mesma regra do ep_card: um episodio que ainda nao estreou
+    # nao recebe ligacao ao video, porque o video e' privado e o clique morre em
+    # "video indisponivel". O indice dos guias tinha ficado de fora da primeira
+    # passagem desta correccao, e foi a medicao em producao que o mostrou.
+    live = is_live(e)
+    destino = e["url"] if live else YT_CHANNEL
+    rotulo = "Watch the episode →" if live else "Go to the channel →"
     if e.get("guide"):
         return f'''<div class="ep-card">
       <div class="ep-meta"><span class="ep-num">{e["label"].upper()}</span><span class="ep-badge live">Guide available</span></div>
       <p class="ep-title">{e["guide_title"]}</p>
       <a class="ep-link" href="/guides/{e["slug"]}/">Read the guide →</a>
-      <a class="ep-link ep-link-sub" href="{e["url"]}" rel="noopener">Watch the episode →</a>
+      <a class="ep-link ep-link-sub" href="{destino}" rel="noopener">{rotulo}</a>
     </div>'''
     return f'''<div class="ep-card">
       <div class="ep-meta"><span class="ep-num">{e["label"].upper()}</span><span class="ep-badge">Guide coming soon</span></div>
       <p class="ep-title">{e["title"]}</p>
-      <a class="ep-link" href="{e["url"]}" rel="noopener">Watch the episode →</a>
+      <a class="ep-link" href="{destino}" rel="noopener">{rotulo}</a>
     </div>'''
 
 
