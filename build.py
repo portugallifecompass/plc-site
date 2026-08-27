@@ -2,6 +2,7 @@
 """Portugal Life Compass — static site builder.
 No external dependencies. Usage: python3 build.py  →  output in ./dist
 """
+import html as _html
 import json, re, shutil
 from pathlib import Path
 
@@ -9,6 +10,7 @@ ROOT = Path(__file__).parent
 DIST = ROOT / "dist"
 SITE = "https://portugallifecompass.com"
 YT_CHANNEL = "https://youtube.com/@portugallifecompass"
+OG_IMAGE = "/img/og-default.png"   # 1200x630, gerado a 27/08/2026
 
 BASE = (ROOT / "templates" / "base.html").read_text(encoding="utf-8")
 EPISODES = json.loads((ROOT / "data" / "episodes.json").read_text(encoding="utf-8"))
@@ -89,8 +91,18 @@ REDIRECTS = """# _redirects — Cloudflare Pages
 
 
 def render(title, description, path, content, head_extra=""):
-    html = (BASE.replace("{{title}}", title)
-                .replace("{{description}}", description)
+    # CORRECCAO 27/08/2026 - title e description sao interpolados DENTRO de
+    # atributos HTML (content="..."). Sem escape, uma aspa recta no texto fecha
+    # o atributo e o resto da frase vira atributos invalidos. Aconteceu em
+    # producao em DUAS paginas: a description de portugal-property-capital-gains
+    # renderizava literalmente "The " (4 caracteres) porque a copy diz
+    # 'The "flat 28% for foreigners" is a myth'. Escapar aqui corrige a CLASSE
+    # do defeito e nao as duas ocorrencias - a copy mantem as aspas.
+    e = lambda x: _html.escape(x, quote=True)
+    html = (BASE.replace("{{title}}", e(title))
+                .replace("{{description}}", e(description))
+                .replace("{{yt_channel}}", YT_CHANNEL)
+                .replace("{{og_image}}", SITE + OG_IMAGE)
                 .replace("{{path}}", path)
                 .replace("{{head_extra}}", head_extra)
                 .replace("{{content}}", content))
@@ -210,6 +222,36 @@ def build_extras(paths):
         "/*\n  X-Content-Type-Options: nosniff\n  X-Frame-Options: DENY\n  Referrer-Policy: strict-origin-when-cross-origin\n",
         encoding="utf-8")
     (DIST / "_redirects").write_text(REDIRECTS, encoding="utf-8")
+
+    # ------------------------------------------------------------------
+    # 404.html — ACRESCENTADO 27/08/2026
+    # Medido em producao nesse dia: qualquer caminho inexistente devolvia
+    # HTTP 200 com o conteudo da PAGINA INICIAL (/blog/, /go/<slug nao
+    # configurado>, /isto-nao-existe/). Sao soft 404 em todo o dominio, e o
+    # custo e de indexacao: cada URL inexistente e lido como duplicado da
+    # home. O Cloudflare Pages serve dist/404.html com status 404 quando o
+    # ficheiro existe — e so por isso.
+    # ------------------------------------------------------------------
+    body404 = '''<section class="page-head"><div class="container">
+  <h1>Page not found</h1>
+  <p class="lede">That address does not exist on this site. It may have been a typo, an old link, or a page that never existed.</p>
+</div></section>
+<section class="section"><div class="container">
+  <p>Try one of these instead:</p>
+  <ul>
+    <li><a href="/guides/">All guides</a> — the written companions to every episode, verified at the source.</li>
+    <li><a href="/checklist/">The 2026 Checklist</a> — the free relocation checklist.</li>
+    <li><a href="/about/">About</a> — who this is for and how we verify.</li>
+  </ul>
+</div></section>'''
+    html404 = (BASE.replace("{{title}}", "Page not found — Portugal Life Compass")
+                   .replace("{{description}}", "That page does not exist. Browse the source-verified guides on Portugal's taxes, visas and money.")
+                   .replace("{{yt_channel}}", YT_CHANNEL)
+                   .replace("{{og_image}}", SITE + OG_IMAGE)
+                   .replace("{{path}}", "/404.html")
+                   .replace("{{head_extra}}", '<meta name="robots" content="noindex">')
+                   .replace("{{content}}", body404))
+    (DIST / "404.html").write_text(html404, encoding="utf-8")
 
 
 def main():
