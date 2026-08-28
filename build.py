@@ -4,7 +4,7 @@ No external dependencies. Usage: python3 build.py  →  output in ./dist
 """
 import html as _html
 import json, re, shutil
-from datetime import date as _date
+from datetime import date as _date, datetime as _datetime
 from pathlib import Path
 
 ROOT = Path(__file__).parent
@@ -13,6 +13,7 @@ SITE = "https://portugallifecompass.com"
 YT_CHANNEL = "https://youtube.com/@portugallifecompass"
 OG_IMAGE = "/img/og-default.png"   # 1200x630, gerado a 27/08/2026
 BUILD_DATE = _date.today()
+HORA_ESTREIA = 17          # todas as estreias sao as 17:00 hora de Portugal
 
 BASE = (ROOT / "templates" / "base.html").read_text(encoding="utf-8")
 EPISODES = json.loads((ROOT / "data" / "episodes.json").read_text(encoding="utf-8"))
@@ -123,15 +124,27 @@ def is_live(ep):
     "Premieres". Um campo que so muda quando alguem se lembra de o mudar nao e
     um estado - e uma promessa de manutencao que ninguem cumpre.
 
-    Estritamente ANTERIOR ao dia do build: no proprio dia da estreia o cartao
-    continua a dizer "Premieres <hoje>", que e verdade ate as 17:00. O build
-    que se corre nesse dia (ja inscrito no cronograma, a par da reversao da
-    ligacao do guia) faz o cartao passar a Published.
+    CORRECCAO 28/08/2026 - a regra anterior comparava so DATAS, estritamente
+    anterior ao dia do build. O comentario dizia que "o build que se corre no
+    dia da estreia faz o cartao passar a Published", e isso era falso: com
+    data < hoje, um build corrido a 28/08 as 18:00 continuava a anunciar
+    "Premieres 28 August" com o video ja publico desde as 17:00. O defeito
+    apareceu no proprio dia do Ep7.
+
+    A regra passa a ter HORA. Um episodio esta no ar se a data ja passou, ou
+    se e hoje e ja sao 17:00 ou mais - que e a hora a que todas as estreias
+    estao marcadas. Usa-se a hora local da maquina que constroi (Portugal),
+    sem depender de base de fusos horarios, que no Windows pode nao existir.
 
     O campo "status" fica no JSON e serve so de recurso se a data nao ler.
     """
     try:
-        return _date.fromisoformat(ep["date"]) < BUILD_DATE
+        d = _date.fromisoformat(ep["date"])
+        if d < BUILD_DATE:
+            return True
+        if d == BUILD_DATE:
+            return _datetime.now().hour >= HORA_ESTREIA
+        return False
     except Exception:
         return ep.get("status") == "published"
 
