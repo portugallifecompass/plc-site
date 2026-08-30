@@ -1,0 +1,36 @@
+# Portugal Life Compass — normalizacao de fim de linha
+#
+# POR QUE EXISTE, e a data importa: entre 27/08 e 30/08/2026 o PDF do
+# checklist esteve com 4 230 bytes em disco contra 4 150 no repositorio -
+# 80 bytes CR injectados por conversao de fim de linha aplicada a um
+# ficheiro BINARIO. Sem este ficheiro, o Git decide sozinho o que e' texto,
+# e decidiu mal. O defeito sobreviveu a um "reset --hard", a um
+# "checkout-index -f -a", a um "update-index --really-refresh" e a dois
+# "restore" - e em nenhum deles o "git status" o denunciou.
+#
+# O risco NAO era teorico: main() do build.py copia static/ para dist/ a
+# cada execucao, e dist/ vai committed. Um build seguido de commit teria
+# reintroduzido o PDF corrompido no repositorio, que e' exactamente como
+# ele la entrou da primeira vez.
+#
+# Registo: PLC-3008-N1 e Sync_Dashboard_v325 (30/08/2026).
+
+# Texto: normaliza no repositorio, escreve LF na copia de trabalho.
+* text=auto eol=lf
+
+# Binarios: NUNCA converter.
+*.pdf  binary
+*.png  binary
+*.jpg  binary
+*.jpeg binary
+*.gif  binary
+*.ico  binary
+*.mp4  binary
+*.mp3  binary
+*.wav  binary
+*.woff binary
+*.woff2 binary
+
+# SVG e' XML, logo texto - mas com LF fixo, porque vive em static/ e em
+# dist/ e as duas copias tem de bater byte a byte.
+*.svg text eol=lf
