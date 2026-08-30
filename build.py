@@ -18,6 +18,47 @@ HORA_ESTREIA = 17          # todas as estreias sao as 17:00 hora de Portugal
 BASE = (ROOT / "templates" / "base.html").read_text(encoding="utf-8")
 EPISODES = json.loads((ROOT / "data" / "episodes.json").read_text(encoding="utf-8"))
 
+# --------------------------------------------------------------------------
+# 30/08/2026 - DURACOES lidas no YouTube Studio, video a video, e nao estimadas.
+# Servem o "duration" do VideoObject, que faltava nos onze guias (defeito 9 da
+# revisao de 27/08). Formato ISO 8601, exigido pelo schema.org.
+# --------------------------------------------------------------------------
+DURACOES = {
+    "sKj7SaRgl6o": "PT4M8S",   "ECnct105JV0": "PT4M28S", "ttFby22DOFE": "PT3M17S",
+    "j0G6ShPWd44": "PT2M51S",  "1R3qsRKGIkg": "PT3M17S", "oKxJHpxJSQg": "PT3M20S",
+    "9CXVyx99F1E": "PT3M11S",  "JvW3NlYoH_k": "PT3M21S", "Ghx8KynGTbA": "PT3M26S",
+    "TOGdqwQ3TPY": "PT3M33S",  "j6RRm1KF2_E": "PT3M21S",
+}
+
+# --------------------------------------------------------------------------
+# 30/08/2026 - LIGACAO INTERNA GUIA-A-GUIA (defeito 8 da revisao de 27/08).
+# Medido nessa revisao: nove guias tinham UMA ligacao a outro guia, um tinha
+# DUAS e o do D7 tinha ZERO - era um beco. O bloco e' gerado aqui, e nao
+# escrito em cada ficheiro, para que o grafo se possa ler e conferir num
+# sitio so. Conferido: nenhum guia fica sem ligacoes de entrada.
+# --------------------------------------------------------------------------
+RELACIONADOS = {
+    "portugal-tax-mistakes":                ["nif-fiscal-representative-portugal", "portugal-double-taxation-treaties", "portugal-crypto-taxes"],
+    "ifici-portugal-20-percent-tax":        ["portugal-tax-mistakes", "d7-visa-income-requirements", "portugal-self-employed-social-security"],
+    "d7-visa-income-requirements":          ["ifici-portugal-20-percent-tax", "portugal-foreign-pension-tax", "portugal-golden-visa-remote-work"],
+    "portugal-foreign-pension-tax":         ["portugal-double-taxation-treaties", "d7-visa-income-requirements", "ifici-portugal-20-percent-tax"],
+    "portugal-double-taxation-treaties":    ["portugal-foreign-pension-tax", "portugal-tax-mistakes", "nif-fiscal-representative-portugal"],
+    "nif-fiscal-representative-portugal":   ["portugal-tax-mistakes", "portugal-property-purchase-taxes", "d7-visa-income-requirements"],
+    "portugal-property-purchase-taxes":     ["portugal-property-capital-gains", "nif-fiscal-representative-portugal", "portugal-tax-mistakes"],
+    "portugal-property-capital-gains":      ["portugal-property-purchase-taxes", "portugal-crypto-taxes", "portugal-double-taxation-treaties"],
+    "portugal-self-employed-social-security":["d7-visa-income-requirements", "ifici-portugal-20-percent-tax", "portugal-tax-mistakes"],
+    "portugal-crypto-taxes":                ["portugal-tax-mistakes", "portugal-property-capital-gains", "portugal-golden-visa-remote-work"],
+    "portugal-golden-visa-remote-work":     ["d7-visa-income-requirements", "portugal-self-employed-social-security", "ifici-portugal-20-percent-tax"],
+}
+
+EP_POR_SLUG = {e["slug"]: e for e in EPISODES}
+EP_POR_PATH = {"/guides/%s/" % e["slug"]: e for e in EPISODES}
+
+
+def _vid(ep):
+    """O id do video a partir do url curto youtu.be/<id>."""
+    return ep["url"].rstrip("/").rsplit("/", 1)[-1]
+
 
 # --------------------------------------------------------------------------
 # _redirects — Cloudflare Pages
@@ -115,6 +156,24 @@ def render(title, description, path, content, head_extra=""):
     return path
 
 
+def _hora_portugal():
+    """30/08/2026 - a regra de 28/08 usava _datetime.now().hour, ou seja a hora
+    LOCAL da maquina que constroi. Isso e' correcto no Windows do dono, que
+    corre em hora de Portugal, e ERRADO em qualquer maquina em UTC - onde as
+    17:30 de Lisboa sao as 16:30 e o cartao continuaria a dizer "Premieres".
+    Nao e' hipotese: o ambiente Linux ligado a esta pasta corre em UTC.
+
+    Tenta-se a zona horaria explicita e cai-se na hora local se a base de
+    fusos nao existir - que foi a razao pela qual a versao de 28/08 nao a
+    usou. O comportamento no Windows do dono nao muda.
+    """
+    try:
+        from zoneinfo import ZoneInfo
+        return _datetime.now(ZoneInfo("Europe/Lisbon")).hour
+    except Exception:
+        return _datetime.now().hour
+
+
 def is_live(ep):
     """CORRECCAO 27/08/2026 - o estado passa a ser DERIVADO da data de estreia.
 
@@ -143,7 +202,7 @@ def is_live(ep):
         if d < BUILD_DATE:
             return True
         if d == BUILD_DATE:
-            return _datetime.now().hour >= HORA_ESTREIA
+            return _hora_portugal() >= HORA_ESTREIA
         return False
     except Exception:
         return ep.get("status") == "published"
@@ -202,9 +261,21 @@ def build_index():
     <a class="btn btn-gold" href="/checklist/">Download free →</a>
   </div>
 </div></section>'''
+    # 30/08/2026 - defeito 10 da revisao de 27/08: as seis paginas nao-guia
+    # nao tinham dados estruturados nenhuns. A home leva Organization e WebSite.
+    ld = json_ld([
+        {"@context": "https://schema.org", "@type": "Organization",
+         "name": "Portugal Life Compass", "url": SITE + "/",
+         "logo": SITE + "/img/logo.svg",
+         "description": "Source-verified explanations of Portugal's taxes, visas and money for expats, remote workers, retirees and investors.",
+         "sameAs": [YT_CHANNEL]},
+        {"@context": "https://schema.org", "@type": "WebSite",
+         "name": "Portugal Life Compass", "url": SITE + "/",
+         "inLanguage": "en", "publisher": {"@type": "Organization", "name": "Portugal Life Compass"}},
+    ])
     return render("Portugal Life Compass — Portugal's Taxes, Visas & Money, Verified",
                   "Short, verified videos and guides on Portugal's taxes, visas and money for expats, remote workers and retirees. Every legal claim checked against official sources.",
-                  "/", content)
+                  "/", content, ld)
 
 
 def guide_card(e):
@@ -240,9 +311,92 @@ def build_guides():
   <p class="section-sub">Written, source-verified guides for every episode. Every legal statement below is checked against official Portuguese sources — the remaining guides are being published through August–September 2026.</p>
   <div class="ep-grid">{items}</div>
 </div></section>'''
+    # 30/08/2026 - ItemList com os guias que existem, pela ordem em que sao
+    # listados. So entram os que tem guia: anunciar um item que devolve 404
+    # e' pior do que nao ter ItemList.
+    com_guia = [e for e in EPISODES if e.get("guide")]
+    ld = json_ld({"@context": "https://schema.org", "@type": "ItemList",
+                  "name": "Portugal Life Compass guides",
+                  "numberOfItems": len(com_guia),
+                  "itemListElement": [
+                      {"@type": "ListItem", "position": i + 1, "name": e["guide_title"],
+                       "url": "%s/guides/%s/" % (SITE, e["slug"])}
+                      for i, e in enumerate(com_guia)]})
     return render("Guides — Portugal Life Compass",
                   "Source-verified written guides on Portugal's taxes, visas and money — companion articles to the Portugal Life Compass episodes.",
-                  "/guides/", content)
+                  "/guides/", content, ld)
+
+
+def cartao_watch(ep):
+    """30/08/2026 - a linha wc-sub do guia passa a ser DERIVADA, como ja eram
+    o ep_card e o guide_card desde 27/08.
+
+    Antes estava escrita a mao em cada ficheiro de conteudo, e por isso tinha
+    os dois defeitos da classe: QUATRO guias anunciavam "Premieres <data>" com
+    a data ja passada (D7 31/07, pensoes 07/08, dupla tributacao 14/08, NIF
+    21/08), e a reversao da ligacao ao video no dia da estreia era um acto
+    manual inscrito no cronograma - 04/09, 11/09, 18/09 e 25/09 - com o
+    endereco do video copiado a mao em cada um.
+
+    Passa a bastar correr o build. O endereco vem do episodes.json e nao de
+    uma colagem, e a palavra segue a mesma regra de hora da is_live().
+    """
+    live = is_live(ep)
+    destino = ep["url"] if live else YT_CHANNEL
+    rotulo = "Watch on YouTube" if live else "Go to the channel"
+    estado = ("Published " if live else "Premieres ") + ep["date_label"]
+    return ('<p class="wc-sub"><a href="%s" rel="noopener">%s</a> \u00b7 %s</p>'
+            % (destino, rotulo, estado))
+
+
+def bloco_relacionados(slug):
+    alvos = RELACIONADOS.get(slug, [])
+    if not alvos:
+        return ""
+    itens = "".join(
+        '<li><a href="/guides/%s/">%s</a></li>' % (s, EP_POR_SLUG[s]["guide_title"])
+        for s in alvos if s in EP_POR_SLUG)
+    return ('\n  <h2>Related guides</h2>\n  <nav class="related-guides" aria-label="Related guides">'
+            '<ul>%s</ul></nav>\n' % itens)
+
+
+def json_ld(obj):
+    return ('<script type="application/ld+json">\n%s\n</script>'
+            % json.dumps(obj, ensure_ascii=False, separators=(",", ":")))
+
+
+def breadcrumb(ep):
+    return json_ld({"@context": "https://schema.org", "@type": "BreadcrumbList", "itemListElement": [
+        {"@type": "ListItem", "position": 1, "name": "Home", "item": SITE + "/"},
+        {"@type": "ListItem", "position": 2, "name": "Guides", "item": SITE + "/guides/"},
+        {"@type": "ListItem", "position": 3, "name": ep["guide_title"], "item": "%s/guides/%s/" % (SITE, ep["slug"])},
+    ]})
+
+
+def completar_videoobject(body, ep):
+    """30/08/2026 - defeito 9 da revisao de 27/08: os onze VideoObject tinham
+    name, contentUrl, uploadDate e thumbnailUrl, e nao tinham duration nem
+    embedUrl. Acrescentam-se aqui, DERIVADOS - a duracao vem da tabela lida
+    no Studio, o embedUrl do proprio id. Se a duracao nao estiver na tabela,
+    nao se inventa: acrescenta-se so o embedUrl."""
+    vid = _vid(ep)
+    extra = '"embedUrl":"https://www.youtube.com/embed/%s"' % vid
+    dur = DURACOES.get(vid)
+    if dur:
+        extra = '"duration":"%s",' % dur + extra
+    alvo = '"contentUrl":"%s"' % ep["url"]
+    assert alvo in body, "contentUrl nao encontrado no VideoObject de %s" % ep["slug"]
+    body = body.replace(alvo, alvo + "," + extra, 1)
+
+    # 30/08/2026 - o bloco "publication"/BroadcastEvent com isLiveBroadcast:true
+    # anuncia uma estreia FUTURA. Depois de a estreia passar fica a declarar,
+    # em dados estruturados, que um video de ha semanas esta em directo. Quatro
+    # guias estavam nesse estado (piloto e Ep2 nao tinham o bloco; o Ep7 tinha-o
+    # com data de 28/08). Retira-se assim que o episodio esta no ar, pela mesma
+    # regra de data e hora da is_live() - nao ha campo para manter a mao.
+    if is_live(ep):
+        body = re.sub(r',"publication":\{[^{}]*\}', "", body, count=1)
+    return body
 
 
 def build_content_pages():
@@ -252,7 +406,32 @@ def build_content_pages():
         m = re.match(r"<!--(.*?)-->", raw, re.S)
         meta = dict(re.findall(r"^(\w+):\s*(.+)$", m.group(1).strip(), re.M))
         body = raw[m.end():].strip()
-        paths.append(render(meta["title"], meta["description"], meta["path"], body))
+        extra = ""
+        ep = EP_POR_PATH.get(meta["path"])
+        if ep:
+            novo = cartao_watch(ep)
+            body, k = re.subn(r'<p class="wc-sub">.*?</p>', lambda _m: novo, body, count=1, flags=re.S)
+            assert k == 1, "wc-sub nao encontrada em %s" % f.name
+            body = completar_videoobject(body, ep)
+            rel = bloco_relacionados(ep["slug"])
+            assert "<h2>Sources</h2>" in body, "ancora Sources ausente em %s" % f.name
+            body = body.replace("<h2>Sources</h2>", rel + "\n  <h2>Sources</h2>", 1)
+            extra = breadcrumb(ep)
+        else:
+            # 30/08/2026 - as paginas estaticas (/about/, /checklist/,
+            # /disclaimer/, /privacy/) tambem nao tinham dados estruturados.
+            # WebPage + BreadcrumbList de dois niveis, que e' o que sao.
+            extra = json_ld([
+                {"@context": "https://schema.org", "@type": "WebPage",
+                 "name": meta["title"], "description": meta["description"],
+                 "url": SITE + meta["path"], "inLanguage": "en",
+                 "isPartOf": {"@type": "WebSite", "name": "Portugal Life Compass", "url": SITE + "/"},
+                 "publisher": {"@type": "Organization", "name": "Portugal Life Compass"}},
+                {"@context": "https://schema.org", "@type": "BreadcrumbList", "itemListElement": [
+                    {"@type": "ListItem", "position": 1, "name": "Home", "item": SITE + "/"},
+                    {"@type": "ListItem", "position": 2, "name": meta["title"].split(" \u2014 ")[0], "item": SITE + meta["path"]}]},
+            ])
+        paths.append(render(meta["title"], meta["description"], meta["path"], body, extra))
     return paths
 
 
