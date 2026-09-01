@@ -56,3 +56,19 @@
 #     Variantes por colocacao, so quando a rede confirmar sub-ID:
 #     /go/<parceiro>-yt · -guide · -short · -mail
 # ------------------------------------------------------------------
+
+# ------------------------------------------------------------------
+# 5 · APANHA-TUDO DO /go/ — 01/09/2026, decisao do utilizador.
+#
+#     Medido em producao a 01/09: /go/nope devolvia 200 com uma pagina,
+#     enquanto /isto-nao-existe-de-todo/ ja devolvia 404 a serio. O /go/
+#     era a unica familia de caminhos onde uma ligacao mal escrita
+#     PARECIA funcionar - que e' exactamente o que a regra 1 no topo
+#     deste ficheiro diz ser pior do que um 404.
+#
+#     Esta linha tem de ficar SEMPRE EM ULTIMO no ficheiro: o Cloudflare
+#     Pages avalia por ordem e a primeira regra que casa vence. Cada
+#     linha de parceiro real entra ACIMA desta, nunca abaixo, senao
+#     nunca chega a ser avaliada.
+# ------------------------------------------------------------------
+/go/*    /404.html    404

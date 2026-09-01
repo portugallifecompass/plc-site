@@ -24,6 +24,7 @@ EPISODES = json.loads((ROOT / "data" / "episodes.json").read_text(encoding="utf-
 # revisao de 27/08). Formato ISO 8601, exigido pelo schema.org.
 # --------------------------------------------------------------------------
 DURACOES = {
+    "QZQkfqIjAYM": "PT5M23S",  # Ep12 — acrescentado 01/09/2026
     "sKj7SaRgl6o": "PT4M8S",   "ECnct105JV0": "PT4M28S", "ttFby22DOFE": "PT3M17S",
     "j0G6ShPWd44": "PT2M51S",  "1R3qsRKGIkg": "PT3M17S", "oKxJHpxJSQg": "PT3M20S",
     "9CXVyx99F1E": "PT3M11S",  "JvW3NlYoH_k": "PT3M21S", "Ghx8KynGTbA": "PT3M26S",
@@ -38,6 +39,7 @@ DURACOES = {
 # sitio so. Conferido: nenhum guia fica sem ligacoes de entrada.
 # --------------------------------------------------------------------------
 RELACIONADOS = {
+    "portugal-healthcare-sns-private-insurance": ["d7-visa-income-requirements", "portugal-self-employed-social-security", "portugal-tax-mistakes"],
     "portugal-tax-mistakes":                ["nif-fiscal-representative-portugal", "portugal-double-taxation-treaties", "portugal-crypto-taxes"],
     "ifici-portugal-20-percent-tax":        ["portugal-tax-mistakes", "d7-visa-income-requirements", "portugal-self-employed-social-security"],
     "d7-visa-income-requirements":          ["ifici-portugal-20-percent-tax", "portugal-foreign-pension-tax", "portugal-golden-visa-remote-work"],
@@ -131,6 +133,22 @@ REDIRECTS = """# _redirects — Cloudflare Pages
 #     Variantes por colocacao, so quando a rede confirmar sub-ID:
 #     /go/<parceiro>-yt · -guide · -short · -mail
 # ------------------------------------------------------------------
+
+# ------------------------------------------------------------------
+# 5 · APANHA-TUDO DO /go/ — 01/09/2026, decisao do utilizador.
+#
+#     Medido em producao a 01/09: /go/nope devolvia 200 com uma pagina,
+#     enquanto /isto-nao-existe-de-todo/ ja devolvia 404 a serio. O /go/
+#     era a unica familia de caminhos onde uma ligacao mal escrita
+#     PARECIA funcionar - que e' exactamente o que a regra 1 no topo
+#     deste ficheiro diz ser pior do que um 404.
+#
+#     Esta linha tem de ficar SEMPRE EM ULTIMO no ficheiro: o Cloudflare
+#     Pages avalia por ordem e a primeira regra que casa vence. Cada
+#     linha de parceiro real entra ACIMA desta, nunca abaixo, senao
+#     nunca chega a ser avaliada.
+# ------------------------------------------------------------------
+/go/*    /404.html    404
 """
 
 
@@ -208,13 +226,34 @@ def is_live(ep):
         return ep.get("status") == "published"
 
 
+def atributos_estreia(ep):
+    """01/09/2026 - a palavra Published deixa de depender do build.
+
+    Ate hoje, o estado de um episodio era calculado no momento do build. Como
+    o Cloudflare Pages serve o dist/ verbatim e nao corre build nenhum, isso
+    obrigava a um DEPLOY MANUAL no dia de cada estreia - quatro deles estavam
+    inscritos no cronograma para 04/09, 11/09, 18/09 e 25/09.
+
+    Passa a ser calculado no browser de quem visita, contra a hora da estreia
+    escrita aqui em ISO com o fuso de Lisboa. O HTML continua a sair com o
+    estado correcto A' DATA DO BUILD, pelo que uma pagina sem JavaScript
+    continua certa ate a' estreia e so deixa de o ser depois dela - nunca
+    antes, que e' o erro que importa evitar (prometer publico o que e' privado).
+    """
+    d = ep["date"]
+    # Julho a Outubro em Portugal continental: UTC+01:00. Novembro a Marco: Z.
+    fuso = "+01:00" if "-04-" <= d[4:8] <= "-10-" else "+00:00"
+    return ('data-live-at="%sT17:00:00%s" data-yt="%s" data-yt-channel="%s" '
+            'data-date-label="%s"' % (d, fuso, ep["url"], YT_CHANNEL, ep["date_label"]))
+
+
 def ep_card(ep):
     live = is_live(ep)
     badge = ('<span class="ep-badge live">Published</span>' if live
              else f'<span class="ep-badge">Premieres {ep["date_label"]}</span>')
     guide_link = (f'<a class="ep-link" href="/guides/{ep["slug"]}/">Read the guide →</a>'
                   if ep.get("guide") else "")
-    return f'''<div class="ep-card">
+    return f'''<div class="ep-card" {atributos_estreia(ep)}>
       <div class="ep-meta"><span class="ep-num">{ep["label"].upper()}</span>{badge}</div>
       <p class="ep-title">{ep["title"]}</p>
       {guide_link}
@@ -287,7 +326,7 @@ def guide_card(e):
     destino = e["url"] if live else YT_CHANNEL
     rotulo = "Watch the episode →" if live else "Go to the channel →"
     if e.get("guide"):
-        return f'''<div class="ep-card">
+        return f'''<div class="ep-card" {atributos_estreia(e)}>
       <div class="ep-meta"><span class="ep-num">{e["label"].upper()}</span><span class="ep-badge live">Guide available</span></div>
       <p class="ep-title">{e["guide_title"]}</p>
       <a class="ep-link" href="/guides/{e["slug"]}/">Read the guide →</a>
@@ -345,8 +384,8 @@ def cartao_watch(ep):
     destino = ep["url"] if live else YT_CHANNEL
     rotulo = "Watch on YouTube" if live else "Go to the channel"
     estado = ("Published " if live else "Premieres ") + ep["date_label"]
-    return ('<p class="wc-sub"><a href="%s" rel="noopener">%s</a> \u00b7 %s</p>'
-            % (destino, rotulo, estado))
+    return ('<p class="wc-sub" %s><a href="%s" rel="noopener">%s</a> \u00b7 %s</p>'
+            % (atributos_estreia(ep), destino, rotulo, estado))
 
 
 def bloco_relacionados(slug):

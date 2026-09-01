@@ -96,5 +96,48 @@
     <p class="footer-copy">© 2026 Portugal Life Compass</p>
   </div>
 </footer>
+<script>
+/* 01/09/2026 — a palavra "Published" deixa de depender do build.
+   O Cloudflare Pages serve o dist/ verbatim e nao corre build, pelo que ate
+   hoje cada estreia exigia um deploy manual. Esta funcao le a hora da estreia
+   escrita em data-live-at (ISO com fuso) e actualiza o cartao no browser.
+   O HTML ja sai com o estado certo a' data do build: isto so o corrige DEPOIS
+   da estreia, nunca antes. Sem JavaScript a pagina continua valida. */
+(function(){
+  try{
+    var agora = Date.now();
+    var nos = document.querySelectorAll('[data-live-at]');
+    for (var i=0;i<nos.length;i++){
+      var n = nos[i];
+      var t = Date.parse(n.getAttribute('data-live-at'));
+      if (!t || agora < t) continue;              /* ainda nao estreou */
+      var yt = n.getAttribute('data-yt');
+      if (!yt) continue;
+
+      /* So o cartao de episodio troca a etiqueta. O cartao de GUIA diz
+         "Guide available" e nao e' um estado de estreia — nao se toca. */
+      var sel = n.querySelector('.ep-badge');
+      if (sel && (sel.textContent || '').indexOf('Premieres') === 0){
+        sel.className = 'ep-badge live'; sel.textContent = 'Published';
+      }
+
+      var a = n.querySelector('a[href="' + n.getAttribute('data-yt-channel') + '"]');
+      if (a){
+        a.setAttribute('href', yt);
+        var txt = a.textContent || '';
+        if (txt.indexOf('Go to the channel') === 0){
+          a.textContent = (n.className.indexOf('ep-card') >= 0 && txt.indexOf('\u2192') >= 0)
+            ? 'Watch on YouTube \u2192' : 'Watch on YouTube';
+        }
+      }
+      if (n.className.indexOf('wc-sub') >= 0){
+        var rot = n.querySelector('a');
+        if (rot) rot.textContent = 'Watch on YouTube';
+        n.lastChild.nodeValue = ' \u00b7 Published ' + n.getAttribute('data-date-label');
+      }
+    }
+  }catch(e){ /* nunca partir a pagina por causa disto */ }
+})();
+</script>
 </body>
 </html>
